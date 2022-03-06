@@ -15,7 +15,7 @@ class aggregator(nn.Module):
     aggregator: for aggregating feature of neighbors
     """
     def __init__(self, drug_feature, side_feature, adj, embed_dim, weight_decay = 0.0005, droprate = 0.5,
-                    cuda = "cpu", is_drug_part = True):
+                    cuda = "cuda", is_drug_part = True):
         super(aggregator, self).__init__()
 
         self.drugfeature = drug_feature

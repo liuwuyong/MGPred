@@ -285,11 +285,11 @@ def train_test(data_train, data_test, data_neg, fold, args):
     negset = torch.utils.data.TensorDataset(torch.LongTensor(u_neg), torch.LongTensor(i_neg),
                                              torch.FloatTensor(r_neg))
     _train = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True,
-                                         num_workers=16, pin_memory=True)
+                                         num_workers=8, pin_memory=True)
     _test = torch.utils.data.DataLoader(testset, batch_size=args.test_batch_size, shuffle=True,
-                                        num_workers=16, pin_memory=True)
+                                        num_workers=8, pin_memory=True)
     _neg = torch.utils.data.DataLoader(negset, batch_size=args.batch_size, shuffle=True,
-                                         num_workers=16, pin_memory=True)
+                                         num_workers=8, pin_memory=True)
 
     torch.backends.cudnn.benchmark = True
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -318,15 +318,15 @@ def train_test(data_train, data_test, data_neg, fold, args):
 
     # side-effect part
     i_agg_embed_cmp1 = aggregator(u2e1.to(device), i2e1.to(device), i_adj, embed_dim, cuda=device,
-                                  weight_decay=args.weight_decay, droprate=args.droprate, is_user_part=False)
+                                  weight_decay=args.weight_decay, droprate=args.droprate, is_drug_part=False)
     i_embed_cmp1 = encoder(embed_dim, i_agg_embed_cmp1, cuda=device, is_user_part=False)
 
     i_agg_embed_cmp2 = aggregator(u2e2.to(device), i2e2.to(device), i_adj, embed_dim, cuda=device,
-                                  weight_decay=args.weight_decay, droprate=args.droprate, is_user_part=False)
+                                  weight_decay=args.weight_decay, droprate=args.droprate, is_drug_part=False)
     i_embed_cmp2 = encoder(embed_dim, i_agg_embed_cmp2, cuda=device, is_user_part=False)
 
     i_agg_embed_cmp3 = aggregator(u2e3.to(device), i2e3.to(device), i_adj, embed_dim, cuda=device,
-                                  weight_decay=args.weight_decay, droprate=args.droprate, is_user_part=False)
+                                  weight_decay=args.weight_decay, droprate=args.droprate, is_drug_part=False)
     i_embed_cmp3 = encoder(embed_dim, i_agg_embed_cmp3, cuda=device, is_user_part=False)
 
     model = MGPred(u_embed_cmp1, u_embed_cmp2, u_embed_cmp3, i_embed_cmp1, i_embed_cmp2, i_embed_cmp3, embed_dim, args.N, droprate=args.droprate).to(device)
@@ -470,7 +470,7 @@ def ten_fold(args):
         print(np.mean(total_mae))
         sys.stdout.flush()
 
-
+    #提取正负样例
 def Extract_positive_negative_samples(DAL, addition_negative_number='all'):
     k = 0
     interaction_target = np.zeros((DAL.shape[0]*DAL.shape[1], 3)).astype(int)
@@ -516,7 +516,7 @@ def main():
                         metavar = 'N', help = 'input batch size for testing')
     parser.add_argument('--dataset', type = str, default = 'yelp',
                         metavar = 'STRING', help = 'dataset')
-    parser.add_argument('--rawpath', type=str, default='D:/~博士/~收集的文献/需要研究的模型/MCC/My_dataset',
+    parser.add_argument('--rawpath', type=str, default='./data',
     # parser.add_argument('--rawpath', type=str, default='/home/zhaohc/My_dataset',
                         metavar='STRING', help='rawpath')
     args = parser.parse_args()
